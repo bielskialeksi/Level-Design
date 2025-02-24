@@ -5,19 +5,24 @@
 [Ll]ibrary/
 /LevelDesign/[Ll]ibrary/
 /[Tt]emp/
+/LevelDesign/[Tt]emp/
 /[Oo]bj/
+/LevelDesign/[Oo]bj/
 /[Bb]uild/
+/LevelDesign/[Bb]uild/
 /[Bb]uilds/
+/LevelDesign/[Bb]uilds/
 /[Ll]ogs/
+/LevelDesign/[Ll]ogs/
 /[Uu]ser[Ss]ettings/
-
+/LevelDesign/[Uu]ser[Ss]ettings/
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
-
+/LevelDesign/[Mm]emoryCaptures/
 # Recordings can get excessive in size
 /[Rr]ecordings/
-
+/LevelDesign/[Rr]ecordings/
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
 
