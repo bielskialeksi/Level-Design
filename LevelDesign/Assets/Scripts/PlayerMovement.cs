@@ -6,15 +6,16 @@ public class PlayerMovement : MonoBehaviour
 {
     #region Variables
     [Header("Movement")]
-    public float _walkSpeed = 50f;
-    public float _sprintSpeed = 100f;
+    public float _force = 10f;
+    public float _walkSpeed = 10f;
+    public float _sprintSpeed = 20f;
     public float _groundDrag = 5f;
     private float _moveSpeed;
 
     [Header("Jumping")]
-    public float _jumpForce = 200f;
+    public float _jumpForce = 20f;
     public float _jumpCooldown = 0.25f;
-    public float _airMultiplier = 0.4f;
+    public float _airMultiplier = 1.1f;
     private bool _readyToJump;
 
     [Header("Crounching")]
@@ -47,14 +48,14 @@ public class PlayerMovement : MonoBehaviour
         Air
     }
 
-    public Transform orientation;
+    public Transform _orientation;
 
     float horizontalInput;
     float verticalInput;
 
     Vector3 _moveDirection;
 
-    Rigidbody rb;
+    Rigidbody _rb;
     // Start is called before the first frame update
     #endregion
 
@@ -62,8 +63,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;
+        _rb = GetComponent<Rigidbody>();
+        _rb.freezeRotation = true;
         ResetJump();
         _startYScale = transform.localScale.y;
     }
@@ -75,15 +76,16 @@ public class PlayerMovement : MonoBehaviour
 
         MyInput();
         SpeedControl();
+        StateHandler();
+
         if (_grounded)
         {
-            rb.drag = _groundDrag;
+            _rb.drag = _groundDrag;
         }
         else
         {
-            rb.drag = 0;
+            _rb.drag = 0;
         }
-        StateHandler();
     }
 
     private void FixedUpdate()
@@ -110,7 +112,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(_crouchKey))
         {
             transform.localScale = new Vector3(transform.localScale.x, _crouchYScale, transform.localScale.z);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+            _rb.AddForce(Vector3.down * _force, ForceMode.Impulse);
         }
 
         if (Input.GetKeyUp(_crouchKey))
@@ -146,46 +148,45 @@ public class PlayerMovement : MonoBehaviour
 
     private void MovePlayer()
     {
-        _moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        _moveDirection = _orientation.forward * verticalInput + _orientation.right * horizontalInput;
 
         if (OnSlope() && !_existingSlop)
         {
-            rb.AddForce(GetSlopeMoveDirection() * _moveSpeed * 20f, ForceMode.Force);
+            _rb.AddForce(GetSlopeMoveDirection() * _moveSpeed * _force, ForceMode.Force);
 
-            if(rb.velocity.y > 0)
+            if (_rb.velocity.y > 0)
             {
-                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+                _rb.AddForce(Vector3.down * _force, ForceMode.Force);
             }
         }
-
-        if (_grounded)
+        else if (_grounded)
         {
-            rb.AddForce(_moveDirection.normalized * _moveSpeed * 10f, ForceMode.Force);
+            _rb.AddForce(_moveDirection.normalized * _moveSpeed * _force, ForceMode.Force);
         }
         else if(!_grounded)
         {
-            rb.AddForce(_moveDirection.normalized * _moveSpeed * 10f * _airMultiplier, ForceMode.Force);
+            _rb.AddForce(_moveDirection.normalized * _moveSpeed * _force * _airMultiplier, ForceMode.Force);
         }
 
-        rb.useGravity = !OnSlope();
+        _rb.useGravity = !OnSlope();
     }
 
     private void SpeedControl()
     {
         if (OnSlope() && !_existingSlop)
         {
-            if (rb.velocity.magnitude > _moveSpeed)
-                rb.velocity = rb.velocity.normalized * _moveSpeed;
+            if (_rb.velocity.magnitude > _moveSpeed)
+                _rb.velocity = _rb.velocity.normalized * _moveSpeed * _force;
         }
 
         else
         {
-            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            Vector3 flatVel = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
 
             if (flatVel.magnitude > _moveSpeed)
             {
-                Vector3 limitedVel = flatVel.normalized * _moveSpeed;
-                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
+                Vector3 limitedVel = flatVel.normalized * _moveSpeed * _force;
+                _rb.velocity = new Vector3(limitedVel.x, _rb.velocity.y, limitedVel.z);
 
             }
         }
@@ -196,8 +197,8 @@ public class PlayerMovement : MonoBehaviour
     {
         _existingSlop = true;
 
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-        rb.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
+        _rb.velocity = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
+        _rb.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
     }
     private void ResetJump()
     {
@@ -207,9 +208,9 @@ public class PlayerMovement : MonoBehaviour
 
     private bool OnSlope()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, _playerHeight * 0.5f + 0.3f, _whatIsGround))
+        if (Physics.Raycast(transform.position, Vector3.down, out _slopeHit, _playerHeight * 0.5f + 0.3f, _whatIsGround))
         {
-            float angle = Vector3.Angle(Vector3.up, hitInfo.normal);
+            float angle = Vector3.Angle(Vector3.up, _slopeHit.normal);
             return angle < _maxSlopeAngle && angle != 0;
         }
 
@@ -221,4 +222,29 @@ public class PlayerMovement : MonoBehaviour
         return Vector3.ProjectOnPlane(_moveDirection, _slopeHit.normal).normalized;
     }
     #endregion
+
+    private void OnDrawGizmos()
+    {
+        // Dessiner une sphère pour représenter la vérification du sol
+        Gizmos.color = _grounded ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(transform.position + Vector3.down * (_playerHeight * 0.5f), 0.2f);
+
+        // Dessiner un rayon pour montrer la direction de la détection du sol
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * (_playerHeight * 0.5f + 0.2f));
+
+        // Dessiner la direction du mouvement
+        if (_moveDirection != Vector3.zero)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, transform.position + _moveDirection);
+        }
+
+        // Dessiner une indication visuelle de la pente détectée
+        if (OnSlope()&& !_existingSlop)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(transform.position, transform.position + GetSlopeMoveDirection() * 2f);
+        }
+    }
 }

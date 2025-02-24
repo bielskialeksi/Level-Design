@@ -213,12 +213,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60aeb33ac085c0e4a8ac899447b83be7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _walkSpeed: 50
-  _sprintSpeed: 100
+  _force: 10
+  _walkSpeed: 30
+  _sprintSpeed: 75
   _groundDrag: 5
-  _jumpForce: 200
+  _jumpForce: 75
   _jumpCooldown: 0.25
-  _airMultiplier: 0.4
+  _airMultiplier: 0.011
   _crouchSpeed: 3.5
   _crouchYScale: 0.5
   _jumpKey: 32
@@ -230,7 +231,7 @@ MonoBehaviour:
     m_Bits: 1024
   _maxSlopeAngle: 40
   _state: 0
-  orientation: {fileID: 3464687149806598590}
+  _orientation: {fileID: 3464687149806598590}
 --- !u!1 &8371511517697257886
 GameObject:
   m_ObjectHideFlags: 0
