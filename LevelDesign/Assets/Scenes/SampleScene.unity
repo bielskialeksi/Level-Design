@@ -320,52 +320,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: jumpForce
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
       propertyPath: _jumpForce
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: _moveSpeed
-      value: 10
+      propertyPath: _walkSpeed
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: groundDrag
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: _groundDrag
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: jumpCooldown
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: playerHeight
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: _jumpCooldown
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: _playerHeight
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: airMultiplier
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: _airMultiplier
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4975265265035402428, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: whatIsGround.m_Bits
-      value: 1024
+      propertyPath: _sprintSpeed
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 7436515370133114868, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
       propertyPath: m_Name
@@ -410,10 +374,6 @@ PrefabInstance:
     - target: {fileID: 7717648733175403543, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8329956622296938753, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
-      propertyPath: m_Mass
-      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

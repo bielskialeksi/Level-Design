@@ -6,15 +6,15 @@ public class PlayerMovement : MonoBehaviour
 {
     #region Variables
     [Header("Movement")]
-    public float _moveSpeed;
-    public float _walkSpeed = 7;
-    public float _sprintSpeed = 10;
-    public float _groundDrag;
+    public float _walkSpeed = 50f;
+    public float _sprintSpeed = 100f;
+    public float _groundDrag = 5f;
+    private float _moveSpeed;
 
     [Header("Jumping")]
-    public float _jumpForce;
-    public float _jumpCooldown;
-    public float _airMultiplier;
+    public float _jumpForce = 200f;
+    public float _jumpCooldown = 0.25f;
+    public float _airMultiplier = 0.4f;
     private bool _readyToJump;
 
     [Header("Crounching")]
@@ -32,6 +32,12 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask _whatIsGround;
     bool _grounded;
 
+    [Header("Slope Handling")]
+    public float _maxSlopeAngle = 40f;
+    private RaycastHit _slopeHit;
+    private bool _existingSlop;
+
+    [Header("Movement")]
     public MovementState _state;
     public enum MovementState
     {
@@ -142,6 +148,16 @@ public class PlayerMovement : MonoBehaviour
     {
         _moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
+        if (OnSlope() && !_existingSlop)
+        {
+            rb.AddForce(GetSlopeMoveDirection() * _moveSpeed * 20f, ForceMode.Force);
+
+            if(rb.velocity.y > 0)
+            {
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+            }
+        }
+
         if (_grounded)
         {
             rb.AddForce(_moveDirection.normalized * _moveSpeed * 10f, ForceMode.Force);
@@ -151,29 +167,58 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(_moveDirection.normalized * _moveSpeed * 10f * _airMultiplier, ForceMode.Force);
         }
 
+        rb.useGravity = !OnSlope();
     }
 
     private void SpeedControl()
     {
-        Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-        if (flatVel.magnitude > _moveSpeed)
+        if (OnSlope() && !_existingSlop)
         {
-            Vector3 limitedVel = flatVel.normalized * _moveSpeed;
-            rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
-
+            if (rb.velocity.magnitude > _moveSpeed)
+                rb.velocity = rb.velocity.normalized * _moveSpeed;
         }
-    }
 
+        else
+        {
+            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+            if (flatVel.magnitude > _moveSpeed)
+            {
+                Vector3 limitedVel = flatVel.normalized * _moveSpeed;
+                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
+
+            }
+        }
+
+    }
 
     private void Jump()
     {
+        _existingSlop = true;
+
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
     }
     private void ResetJump()
     {
         _readyToJump = true;
+        _existingSlop = false;
+    }
+
+    private bool OnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, _playerHeight * 0.5f + 0.3f, _whatIsGround))
+        {
+            float angle = Vector3.Angle(Vector3.up, hitInfo.normal);
+            return angle < _maxSlopeAngle && angle != 0;
+        }
+
+        return false;
+    }
+
+    private Vector3 GetSlopeMoveDirection()
+    {
+        return Vector3.ProjectOnPlane(_moveDirection, _slopeHit.normal).normalized;
     }
     #endregion
 }
