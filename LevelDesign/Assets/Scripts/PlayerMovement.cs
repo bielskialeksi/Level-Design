@@ -5,9 +5,10 @@ public enum MovementState
 {
     Walking,
     Sprinting,
+    Crouching,
     Sliding,
     WallRunning,
-    Crouching,
+    Dashing,
     Air
 }
 
@@ -19,14 +20,17 @@ public class PlayerMovement : MonoBehaviour
     public float _sprintSpeed = 10f;
     public float _slideSpeed = 30f;
     public float _wallRunSpeed = 15f;
-    public float _groundDrag = 5f;
+    public float _dashSpeed = 20f;
+    public float _dashChangedFactor = 5f;
 
-    private float _desiredMoveSpeed;
-    private float _lastDesiredMoveSpeed;
-
+    public float _maxYSpeed = 4f;
     public float _speedIncreaseMultiplier;
     public float _slopeIncreaseMultiplier;
+    public float _groundDrag = 4f;
 
+    [Header("Move Speed")]
+    private float _desiredMoveSpeed;
+    private float _lastDesiredMoveSpeed;
     private float _moveSpeed;
 
     [Header("Jumping")]
@@ -61,12 +65,15 @@ public class PlayerMovement : MonoBehaviour
     public MovementState _state;
     public bool _isCrounch;
     public bool _isSliding;
-    public bool _wallRunning;
+    public bool _isWallRunning;
+    public bool _isDashing;
 
-    private float horizontalInput;
-    private float verticalInput;
-    private Vector3 _moveDirection;
+    private MovementState _lastState;
     private Rigidbody _rb;
+    private Vector3 _moveDirection;
+    private float _horizontalInput;
+    private float _verticalInput;
+    private bool _keepMomentum;
 
     [Header("Gizmos")]
     public bool _showGizmos;
@@ -91,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
         SpeedControl();
         StateHandler();
 
-        if (_grounded)
+        if (_state == MovementState.Walking ||_state == MovementState.Sprinting ||_state == MovementState.Crouching)
         {
             _rb.drag = _groundDrag;
         }
@@ -109,11 +116,14 @@ public class PlayerMovement : MonoBehaviour
     #endregion
 
     #region Class Methods
+    private float _speedChangeFactor;
     private IEnumerator SmoothlyLerpMoveSpeed()
     {
         float time = 0;
         float difference = Mathf.Abs(_desiredMoveSpeed - _moveSpeed);
         float startValue = _moveSpeed;
+
+        float boostFactor = _speedChangeFactor;
 
         while(time < difference)
         {
@@ -124,22 +134,24 @@ public class PlayerMovement : MonoBehaviour
                 float slopeAngle = Vector3.Angle(Vector3.up, _slopeHit.normal);
                 float slopeAngleIncrease = 1 + (slopeAngle / 90f);
 
-                time += Time.deltaTime * _speedIncreaseMultiplier * _slopeIncreaseMultiplier * slopeAngleIncrease;
+                time += Time.deltaTime * boostFactor * slopeAngleIncrease;
             }
             else
             {
-                time += Time.deltaTime * _speedIncreaseMultiplier;
+                time += Time.deltaTime * boostFactor;
             }
 
             yield return null;
         }
         _moveSpeed = _desiredMoveSpeed;
+        _speedChangeFactor = 1f;
+        _keepMomentum = false;
     }
 
     private void MyInput()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
+        _horizontalInput = Input.GetAxis("Horizontal");
+        _verticalInput = Input.GetAxis("Vertical");
 
         if (Input.GetKey(_jumpKey) && _readyToJump && _grounded)
         {
@@ -164,7 +176,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void TryStandUp()
     {
-        Debug.Log("TryStandUp");
         if (!Physics.Raycast(_playerObj.position, Vector3.up, _startYScale - _crouchYScale + 0.1f))
         {
             _playerObj.localScale = new Vector3(_playerObj.localScale.x, _startYScale, _playerObj.localScale.z);
@@ -176,13 +187,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void StateHandler()
     {
-        if(_wallRunning)
+        if (_isWallRunning)
         {
             _state = MovementState.WallRunning;
-            _moveSpeed = _wallRunSpeed;
+            _desiredMoveSpeed = _wallRunSpeed;
         }
-
-        if (_isSliding)
+        else if (_isDashing)
+        {
+            _state = MovementState.Dashing;
+            _desiredMoveSpeed = _dashSpeed;
+            _speedChangeFactor = _dashChangedFactor;
+        }
+        else if (_isSliding)
         {
             _state = MovementState.Sliding;
 
@@ -213,24 +229,45 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             _state = MovementState.Air;
+
+            if(_desiredMoveSpeed < _sprintSpeed)
+            {
+                _desiredMoveSpeed = _walkSpeed;
+            }
+            else
+            {
+                _desiredMoveSpeed = _sprintSpeed;
+            }
         }
 
-        if(Mathf.Abs(_desiredMoveSpeed - _lastDesiredMoveSpeed) > 4f && _moveSpeed != 0)
+        bool desiredMveSpeedHasChanged = _desiredMoveSpeed != _lastDesiredMoveSpeed;
+
+        if (desiredMveSpeedHasChanged)
         {
-            StopAllCoroutines();
-            StartCoroutine(SmoothlyLerpMoveSpeed());
-        }
-        else
-        {
-            _moveSpeed = _desiredMoveSpeed;
+            if (_keepMomentum)
+            {
+                StopAllCoroutines();
+                StartCoroutine(SmoothlyLerpMoveSpeed());
+            }
+            else
+            {
+                StopAllCoroutines();
+                _moveSpeed = _desiredMoveSpeed;
+            }
         }
 
         _lastDesiredMoveSpeed = _desiredMoveSpeed;
+        _lastState = _state;
     }
 
     private void MovePlayer()
     {
-        _moveDirection = _orientation.forward * verticalInput + _orientation.right * horizontalInput;
+        if(_state == MovementState.Dashing)
+        {
+            return;
+        }
+
+        _moveDirection = _orientation.forward * _verticalInput + _orientation.right * _horizontalInput;
 
         if (OnSlope() && !_existingSlop)
         {
@@ -250,7 +287,7 @@ public class PlayerMovement : MonoBehaviour
             _rb.AddForce(_moveDirection.normalized * _moveSpeed * 10f * _airMultiplier, ForceMode.Force);
         }
 
-        if (!_wallRunning)
+        if (!_isWallRunning)
         {
             _rb.useGravity = !OnSlope();
         }
@@ -274,6 +311,11 @@ public class PlayerMovement : MonoBehaviour
                 _rb.velocity = new Vector3(limitedVel.x, _rb.velocity.y, limitedVel.z);
 
             }
+        }
+
+        if (_maxYSpeed != 0 && _rb.velocity.y > _maxYSpeed)
+        {
+            _rb.velocity = new Vector3(_rb.velocity.x, _maxYSpeed, _rb.velocity.z);
         }
 
     }
@@ -335,6 +377,17 @@ public class PlayerMovement : MonoBehaviour
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawLine(_playerObj.position, _playerObj.position + GetSlopeMoveDirection(_moveDirection) * 2f);
+        }
+
+        // Dessiner la direction du mouvement avec un cercle au bout
+        if (_rb != null && _rb.velocity.magnitude > 0.1f)
+        {
+            Gizmos.color = Color.magenta;
+            Vector3 velocityDirection = _rb.velocity.normalized;
+            Vector3 velocityEndPoint = _playerObj.position + velocityDirection * 2f;
+
+            Gizmos.DrawLine(_playerObj.position, velocityEndPoint);
+            Gizmos.DrawWireSphere(velocityEndPoint, 0.2f);
         }
     }
 }

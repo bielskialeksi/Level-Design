@@ -200,9 +200,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b012f3fa16e112442ad453be50495139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &410127455 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1796699344488503979, guid: c6dc9acaeacf2fb458c6e7e31e37ff4c, type: 3}
+  m_PrefabInstance: {fileID: 8027815471689643475}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1045543911 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2140936580559347899, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+  m_PrefabInstance: {fileID: 4197174713200163781}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1675887877 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 28889537886694893, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
   m_PrefabInstance: {fileID: 4197174713200163781}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1877591580
@@ -307,6 +317,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4169017506454724726, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _playerCam
+      value: 
+      objectReference: {fileID: 410127455}
+    - target: {fileID: 6977778525215547486, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _maxSlideTime
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7436515370133114868, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
       propertyPath: m_Name
       value: Player
@@ -351,10 +369,46 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8439935574663759597, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _jumpForce
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8439935574663759597, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _slideSpeed
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 8439935574663759597, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _wallRunSpeed
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8439935574663759597, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _slopeIncreaseMultiplier
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8439935574663759597, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _speedIncreaseMultiplier
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8468063746962620477, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
       propertyPath: _cam
       value: 
       objectReference: {fileID: 410127452}
+    - target: {fileID: 8468063746962620477, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _playerObj
+      value: 
+      objectReference: {fileID: 1675887877}
+    - target: {fileID: 8468063746962620477, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _wallRunForce
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 8468063746962620477, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _minJumpHeight
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8468063746962620477, guid: dea9a24e9262bbf4c84d15e84468992e, type: 3}
+      propertyPath: _wallClimbSpeed
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -380,6 +434,10 @@ PrefabInstance:
       propertyPath: _camHolder
       value: 
       objectReference: {fileID: 260662706}
+    - target: {fileID: 990031796236386097, guid: c6dc9acaeacf2fb458c6e7e31e37ff4c, type: 3}
+      propertyPath: _showGizmos
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 990031796236386097, guid: c6dc9acaeacf2fb458c6e7e31e37ff4c, type: 3}
       propertyPath: orientation
       value: 

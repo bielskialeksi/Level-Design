@@ -151,6 +151,7 @@ GameObject:
   - component: {fileID: 8439935574663759597}
   - component: {fileID: 8468063746962620477}
   - component: {fileID: 6977778525215547486}
+  - component: {fileID: 4169017506454724726}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -218,11 +219,14 @@ MonoBehaviour:
   _walkSpeed: 7
   _sprintSpeed: 10
   _slideSpeed: 30
-  _wallRunSpeed: 15
-  _groundDrag: 5
-  _speedIncreaseMultiplier: 10
-  _slopeIncreaseMultiplier: 10
-  _jumpForce: 10
+  _wallRunSpeed: 7.5
+  _dashSpeed: 20
+  _dashChangedFactor: 5
+  _maxYSpeed: 4
+  _speedIncreaseMultiplier: 5
+  _slopeIncreaseMultiplier: 5
+  _groundDrag: 4
+  _jumpForce: 15
   _jumpCooldown: 0.25
   _airMultiplier: 0.4
   _crouchSpeed: 3.5
@@ -240,7 +244,8 @@ MonoBehaviour:
   _state: 0
   _isCrounch: 0
   _isSliding: 0
-  _wallRunning: 0
+  _isWallRunning: 0
+  _isDashing: 0
   _showGizmos: 1
 --- !u!114 &8468063746962620477
 MonoBehaviour:
@@ -261,19 +266,23 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   _wallRunForce: 200
-  _wallJumpUpForce: 7
-  _wallJumpSideForce: 12
-  _wallClimbSpeed: 3
-  _maxWallRunTime: 1.5
+  _wallJumpUpForce: 7.5
+  _wallJumpSideForce: 7.5
+  _wallClimbSpeed: 4
+  _maxWallRunTime: 2.5
   _jumpKey: 32
   _upwardsRunKey: 304
   _downwardsRunKey: 306
+  _horizontalInput: 0
+  _verticalInput: 0
   _wallCheckDistance: 0.7
-  _minJumpHeight: 2
+  _minJumpHeight: 1.5
   _exitWallTime: 0
+  _useGravity: 0
+  _gravityCounterForce: 5
+  _playerObj: {fileID: 28889537886694893}
   _orientation: {fileID: 3464687149806598590}
-  _pm: {fileID: 8439935574663759597}
-  _rb: {fileID: 8329956622296938753}
+  _cam: {fileID: 0}
 --- !u!114 &6977778525215547486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288,9 +297,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _orientation: {fileID: 3464687149806598590}
   _playerObj: {fileID: 28889537886694893}
-  _maxSlideTime: 0.75
+  _maxSlideTime: 0.5
   _slideForce: 100
   _slideKey: 306
+--- !u!114 &4169017506454724726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7436515370133114868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 271edde756522a742bab49422b1950d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _dashForce: 15
+  _dashUpwardForce: 0
+  _maxDashYSpeed: 8
+  _dashDuration: 0.25
+  _useCameraForward: 1
+  _allowAllDirections: 1
+  _disableGravity: 0
+  _resetVel: 1
+  _dashCd: 1.5
+  _orientation: {fileID: 3464687149806598590}
+  _playerCam: {fileID: 0}
+  _dashKey: 101
 --- !u!1 &8371511517697257886
 GameObject:
   m_ObjectHideFlags: 0

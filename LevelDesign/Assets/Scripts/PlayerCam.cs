@@ -48,17 +48,16 @@ public class PlayerCam : MonoBehaviour
         transform.DOLocalRotate(new Vector3(0f, 0f, zTilt), 0.25f);
     }
 
-
     private void OnDrawGizmos()
     {
         if (_orientation == null || !_showGizmos) return;
 
-        // Dessine une ligne pour visualiser la direction de la caméra
+        // Couleurs pour visualiser la direction selon l'axe de rotation
         Gizmos.color = Color.green;
         Gizmos.DrawRay(transform.position, transform.forward * 2f);
 
-        // Dessine une ligne pour montrer l'orientation du joueur
-        Gizmos.color = Color.blue;
-        Gizmos.DrawRay(_orientation.position, _orientation.forward * 2f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.forward * 1.5f, 0.3f);
     }
+
 }

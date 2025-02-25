@@ -20,8 +20,8 @@ public class WallRunning : MonoBehaviour
     public KeyCode _downwardsRunKey = KeyCode.LeftControl;
     private bool _upwardsRunning;
     private bool _downwardsRunning;
-    private float _horizontalInput;
-    private float _verticalInput;
+    public float _horizontalInput;
+    public float _verticalInput;
 
     [Header("Detection")]
     public float _wallCheckDistance = 0.7f;
@@ -41,6 +41,7 @@ public class WallRunning : MonoBehaviour
     public float _gravityCounterForce;
 
     [Header("References")]
+    public Transform _playerObj;
     public Transform _orientation;
     public PlayerCam _cam;
     private PlayerMovement _pm;
@@ -60,7 +61,7 @@ public class WallRunning : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_pm._wallRunning)
+        if (_pm._isWallRunning)
         {
             WallRunningMovement();
         }
@@ -68,13 +69,16 @@ public class WallRunning : MonoBehaviour
 
     private void CheckForWall()
     {
-        _wallRight = Physics.Raycast(transform.position, _orientation.right, out _rightWallHit, _wallCheckDistance, _whatIsWall);
-        _wallLeft = Physics.Raycast(transform.position, -_orientation.right, out _leftWallHit, _wallCheckDistance, _whatIsWall);
+        _wallRight = Physics.Raycast(_playerObj.position, _orientation.right, out _rightWallHit, _wallCheckDistance, _whatIsWall);
+        _wallLeft = Physics.Raycast(_playerObj.position, -_orientation.right, out _leftWallHit, _wallCheckDistance, _whatIsWall);
+
+        //Debug.Log($"_wallRight : {_wallRight}; _wallLeft : {_wallLeft};");
     }
 
     private bool AboveGround()
     {
-        return !Physics.Raycast(transform.position, Vector3.down, _minJumpHeight, _whatIsGround);
+        //Debug.Log($"AboveGround : {!Physics.Raycast(_playerObj.position, Vector3.down, _minJumpHeight, _whatIsGround)};");
+        return !Physics.Raycast(_playerObj.position, Vector3.down, _minJumpHeight, _whatIsGround);
     }
 
     private void StateMachine()
@@ -87,9 +91,10 @@ public class WallRunning : MonoBehaviour
 
         if ((_wallLeft || _wallRight) && _verticalInput > 0 && AboveGround() && !_exitingWall)
         {
-            if (!_pm._wallRunning)
+            if (!_pm._isWallRunning)
             {
                 StartWallRun();
+                Debug.Log("StartWallRun");
             }
 
             if(_wallRunTimer > 0)
@@ -97,7 +102,7 @@ public class WallRunning : MonoBehaviour
                 _wallRunTimer -= Time.deltaTime;
             }
 
-            if(_wallRunTimer <= 0 && _pm._wallRunning)
+            if(_wallRunTimer <= 0 && _pm._isWallRunning)
             {
                 _exitingWall = true;
                 _exitWallTimer = _exitWallTime;
@@ -111,7 +116,7 @@ public class WallRunning : MonoBehaviour
 
         else if (_exitingWall)
         {
-            if (_pm._wallRunning)
+            if (_pm._isWallRunning)
             {
                 StopWallRun();
             }
@@ -129,7 +134,7 @@ public class WallRunning : MonoBehaviour
 
         else
         {
-            if (_pm._wallRunning)
+            if (_pm._isWallRunning)
             {
                 StopWallRun();
             }
@@ -138,7 +143,7 @@ public class WallRunning : MonoBehaviour
 
     private void StartWallRun()
     {
-        _pm._wallRunning = true;
+        _pm._isWallRunning = true;
         _wallRunTimer = _maxWallRunTime;
         _rb.velocity = new Vector3(_rb.velocity.x, 0f, _rb.velocity.z);
 
@@ -191,7 +196,7 @@ public class WallRunning : MonoBehaviour
 
     private void StopWallRun()
     {
-        _pm._wallRunning = false;
+        _pm._isWallRunning = false;
         _cam.DoFov();
         _cam.DoTilt();
     }
@@ -213,18 +218,18 @@ public class WallRunning : MonoBehaviour
         if (_pm == null || !_pm._showGizmos) return;
 
         // Couleur du cube autour du joueur selon l'état du wallrun
-        Gizmos.color = _pm._wallRunning ? Color.green : Color.red;
-        Gizmos.DrawWireCube(transform.position, new Vector3(1f, 2f, 1f));
+        Gizmos.color = _pm._isWallRunning ? Color.green : Color.red;
+        Gizmos.DrawWireCube(_playerObj.position, new Vector3(1f, 2f, 1f));
 
         // Détection des murs avec les raycasts
         Gizmos.color = _wallLeft ? Color.blue : Color.gray;
-        Gizmos.DrawLine(transform.position, transform.position - _orientation.right * _wallCheckDistance);
+        Gizmos.DrawLine(_playerObj.position, _playerObj.position - _orientation.right * _wallCheckDistance);
 
         Gizmos.color = _wallRight ? Color.blue : Color.gray;
-        Gizmos.DrawLine(transform.position, transform.position + _orientation.right * _wallCheckDistance);
+        Gizmos.DrawLine(_playerObj.position, _playerObj.position + _orientation.right * _wallCheckDistance);
 
         // Direction du mouvement en wallrun
-        if (_pm._wallRunning)
+        if (_pm._isWallRunning)
         {
             Vector3 wallNormal = _wallRight ? _rightWallHit.normal : _leftWallHit.normal;
             Vector3 wallForward = Vector3.Cross(wallNormal, Vector3.up);
@@ -235,7 +240,7 @@ public class WallRunning : MonoBehaviour
             }
 
             Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, transform.position + wallForward * 2f);
+            Gizmos.DrawLine(_playerObj.position, _playerObj.position + wallForward * 2f);
         }
 
         // Direction du wall jump
