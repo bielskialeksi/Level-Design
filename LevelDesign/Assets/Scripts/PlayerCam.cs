@@ -1,16 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
-    public float sensX;
-    public float sensY;
+    [Header("Transform")]
+    public Transform _orientation;
+    public Transform _camHolder;
 
-    public Transform orientation;
+    public float _sensX = 400f;
+    public float _sensY = 400f;
 
-    public float xRotation;
-    public float yRotation;
+    private float _xRotation;
+    private float _yRotation;
+
+    [Header("Gizmos")]
+    public bool _showGizmos;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,18 +26,38 @@ public class PlayerCam : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float mouseX = Input.GetAxis("Mouse X") * Time.deltaTime *sensX;
-        float mouseY = Input.GetAxis("Mouse Y") * Time.deltaTime *sensY;
+        float mouseX = Input.GetAxis("Mouse X") * Time.deltaTime *_sensX;
+        float mouseY = Input.GetAxis("Mouse Y") * Time.deltaTime *_sensY;
 
-        yRotation += mouseX;
-        xRotation -= mouseY;
+        _yRotation += mouseX;
+        _xRotation -= mouseY;
 
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);  
-        
+        _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
 
+        _camHolder.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
+        _orientation.rotation = Quaternion.Euler(0, _yRotation, 0);
+    }
 
-        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+    public void DoFov(float endValue = 80f)
+    {
+        GetComponent<Camera>().DOFieldOfView(endValue, 0.25f);
+    }
+
+    public void DoTilt(float zTilt = 0f)
+    {
+        transform.DOLocalRotate(new Vector3(0f, 0f, zTilt), 0.25f);
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (_orientation == null || !_showGizmos) return;
+
+        // Couleurs pour visualiser la direction selon l'axe de rotation
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, transform.forward * 2f);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.forward * 1.5f, 0.3f);
     }
 
 }
