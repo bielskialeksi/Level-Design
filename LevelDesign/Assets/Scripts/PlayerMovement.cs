@@ -52,7 +52,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Ground Check")]
     public float _playerHeight = 2;
     public LayerMask _whatIsGround;
-    bool _grounded;
+    public bool _grounded;
 
     [Header("Slope Handling")]
     public float _maxSlopeAngle = 40f;
@@ -69,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
     public bool _isDashing;
 
     private MovementState _lastState;
-    private Rigidbody _rb;
+    public Rigidbody _rb;
     private Vector3 _moveDirection;
     private float _horizontalInput;
     private float _verticalInput;
